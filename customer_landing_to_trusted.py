@@ -38,6 +38,8 @@ PrivateFilter_node1737150373034 = sparkSqlQuery(glueContext, query = SqlQuery0, 
 
 # Script generated for node Amazon S3
 EvaluateDataQuality().process_rows(frame=PrivateFilter_node1737150373034, ruleset=DEFAULT_DATA_QUALITY_RULESET, publishing_options={"dataQualityEvaluationContext": "EvaluateDataQuality_node1737149227558", "enableDataQualityResultsPublishing": True}, additional_options={"dataQualityResultsPublishing.strategy": "BEST_EFFORT", "observations.scope": "ALL"})
-AmazonS3_node1737150516293 = glueContext.write_dynamic_frame.from_options(frame=PrivateFilter_node1737150373034, connection_type="s3", format="json", connection_options={"path": "s3://my-stedi-bucket-123456/customer/trusted/", "partitionKeys": []}, transformation_ctx="AmazonS3_node1737150516293")
-
+AmazonS3_node1737150516293 = glueContext.getSink(path="s3://my-stedi-bucket-123456/customer/trusted/", connection_type="s3", updateBehavior="UPDATE_IN_DATABASE", partitionKeys=[], compression="snappy", enableUpdateCatalog=True, transformation_ctx="AmazonS3_node1737150516293")
+AmazonS3_node1737150516293.setCatalogInfo(catalogDatabase="stedi",catalogTableName="customer_trusted_2")
+AmazonS3_node1737150516293.setFormat("json")
+AmazonS3_node1737150516293.writeFrame(PrivateFilter_node1737150373034)
 job.commit()
