@@ -1,7 +1,3 @@
-Here's a detailed `README.md` for the project based on the provided context:
-
----
-
 # STEDI Human Balance Analytics
 
 This project focuses on building a data lakehouse solution using **AWS Glue**, **S3**, **Python**, and **Spark** to process and curate sensor data for training a machine learning model. The project emulates the work of a data engineer managing data pipelines for the STEDI Step Trainer, which combines motion sensors and a mobile app to collect and process balance training data.
@@ -182,6 +178,3 @@ stedi-spark/
 - Monitor job logs to ensure ETL processes run successfully.
 - Validate row counts at each stage against expected results.
 
---- 
-
-Let me know if you need any adjustments!
