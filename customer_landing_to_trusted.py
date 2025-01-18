@@ -32,7 +32,7 @@ CustomerLanding_node1737150415442 = glueContext.create_dynamic_frame.from_catalo
 # Script generated for node Private Filter 
 SqlQuery0 = '''
 select * from myDataSource
-where shareWithResearchAsOfDate IS NOT NULL;
+where shareWithResearchAsOfDate IS NOT NULL
 '''
 PrivateFilter_node1737150373034 = sparkSqlQuery(glueContext, query = SqlQuery0, mapping = {"myDataSource":CustomerLanding_node1737150415442}, transformation_ctx = "PrivateFilter_node1737150373034")
 
