@@ -1,4 +1,4 @@
-CREATE EXTERNAL TABLE IF NOT EXISTS `stedi`.`customer_curated_2` (
+CREATE EXTERNAL TABLE IF NOT EXISTS `stedi`.`customer_curated` (
   `customerName` string,
   `email` string,
   `phone` string,
