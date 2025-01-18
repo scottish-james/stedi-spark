@@ -34,10 +34,13 @@ Join_node1737209339958 = Join.apply(frame1=AWSGlueDataCatalog_node1737209326212,
 # Script generated for node Drop Duplicates
 DropDuplicates_node1737211110061 =  DynamicFrame.fromDF(Join_node1737209339958.toDF().dropDuplicates(), glueContext, "DropDuplicates_node1737211110061")
 
+# Script generated for node Change Schema
+ChangeSchema_node1737212800116 = ApplyMapping.apply(frame=DropDuplicates_node1737211110061, mappings=[("sensorreadingtime", "long", "sensorreadingtime", "long"), ("serialnumber", "string", "serialnumber", "string"), ("distancefromobject", "int", "distancefromobject", "int")], transformation_ctx="ChangeSchema_node1737212800116")
+
 # Script generated for node Amazon S3
-EvaluateDataQuality().process_rows(frame=DropDuplicates_node1737211110061, ruleset=DEFAULT_DATA_QUALITY_RULESET, publishing_options={"dataQualityEvaluationContext": "EvaluateDataQuality_node1737209290193", "enableDataQualityResultsPublishing": True}, additional_options={"dataQualityResultsPublishing.strategy": "BEST_EFFORT", "observations.scope": "ALL"})
+EvaluateDataQuality().process_rows(frame=ChangeSchema_node1737212800116, ruleset=DEFAULT_DATA_QUALITY_RULESET, publishing_options={"dataQualityEvaluationContext": "EvaluateDataQuality_node1737209290193", "enableDataQualityResultsPublishing": True}, additional_options={"dataQualityResultsPublishing.strategy": "BEST_EFFORT", "observations.scope": "ALL"})
 AmazonS3_node1737211131986 = glueContext.getSink(path="s3://my-stedi-bucket-123456/step_trainer/trusted/", connection_type="s3", updateBehavior="UPDATE_IN_DATABASE", partitionKeys=[], enableUpdateCatalog=True, transformation_ctx="AmazonS3_node1737211131986")
 AmazonS3_node1737211131986.setCatalogInfo(catalogDatabase="stedi",catalogTableName="step_trainer_trusted")
 AmazonS3_node1737211131986.setFormat("json")
-AmazonS3_node1737211131986.writeFrame(DropDuplicates_node1737211110061)
+AmazonS3_node1737211131986.writeFrame(ChangeSchema_node1737212800116)
 job.commit()
