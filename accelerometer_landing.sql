@@ -1,4 +1,4 @@
-CREATE EXTERNAL TABLE IF NOT EXISTS `stedi`.`accelerometer_landing_2` (
+CREATE EXTERNAL TABLE IF NOT EXISTS `stedi`.`accelerometer_landing` (
   `timestamp` bigint,
   `x` float,
   `y` float,
