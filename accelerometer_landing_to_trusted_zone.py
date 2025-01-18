@@ -35,7 +35,7 @@ Join_node1737203468890 = Join.apply(frame1=acc_landing_node1737203442098, frame2
 DropDuplicates_node1737203640743 =  DynamicFrame.fromDF(Join_node1737203468890.toDF().dropDuplicates(), glueContext, "DropDuplicates_node1737203640743")
 
 # Script generated for node Change Schema
-ChangeSchema_node1737209624115 = ApplyMapping.apply(frame=DropDuplicates_node1737203640743, mappings=[("user", "string", "user", "string"), ("timestamp", "long", "timestamp", "long"), ("x", "float", "x", "double"), ("y", "float", "y", "double"), ("z", "float", "z", "double")], transformation_ctx="ChangeSchema_node1737209624115")
+ChangeSchema_node1737209624115 = ApplyMapping.apply(frame=DropDuplicates_node1737203640743, mappings=[("serialNumber", "string", "serialNumber_acc", "string"), ("z", "double", "z", "float"), ("y", "double", "y", "float"), ("x", "double", "x", "float"), ("timestamp", "long", "timestamp", "long")], transformation_ctx="ChangeSchema_node1737209624115")
 
 # Script generated for node Amazon S3
 EvaluateDataQuality().process_rows(frame=ChangeSchema_node1737209624115, ruleset=DEFAULT_DATA_QUALITY_RULESET, publishing_options={"dataQualityEvaluationContext": "EvaluateDataQuality_node1737203399676", "enableDataQualityResultsPublishing": True}, additional_options={"dataQualityResultsPublishing.strategy": "BEST_EFFORT", "observations.scope": "ALL"})
