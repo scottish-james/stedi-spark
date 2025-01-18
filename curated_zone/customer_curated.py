@@ -4,46 +4,75 @@ from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
 from awsglue.context import GlueContext
 from awsglue.job import Job
-from awsgluedq.transforms import EvaluateDataQuality
-from awsglue import DynamicFrame
+from awsglue.dynamicframe import DynamicFrame
+from pyspark.sql import functions as SqlFuncs
 
-def sparkSqlQuery(glueContext, query, mapping, transformation_ctx) -> DynamicFrame:
-    for alias, frame in mapping.items():
-        frame.toDF().createOrReplaceTempView(alias)
-    result = spark.sql(query)
-    return DynamicFrame.fromDF(result, glueContext, transformation_ctx)
-args = getResolvedOptions(sys.argv, ['JOB_NAME'])
+args = getResolvedOptions(sys.argv, ["JOB_NAME"])
 sc = SparkContext()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
 job = Job(glueContext)
-job.init(args['JOB_NAME'], args)
+job.init(args["JOB_NAME"], args)
 
-# Default ruleset used by all target nodes with data quality enabled
-DEFAULT_DATA_QUALITY_RULESET = """
-    Rules = [
-        ColumnCount > 0
-    ]
-"""
+# Script generated for node accelerometer trusted
+accelerometertrusted_node983247982374 = glueContext.create_dynamic_frame.from_options(
+    format_options={"multiline": False},
+    connection_type="s3",
+    format="json",
+    connection_options={
+        "paths": ["s3://my-stedi-bucket-123456/accelerometer/trusted/"],
+        "recurse": True,
+    },
+    transformation_ctx="accelerometertrusted_node983247982374",
+)
 
-# Script generated for node cust_trusted
-cust_trusted_node1737220719410 = glueContext.create_dynamic_frame.from_catalog(database="stedi", table_name="customer_trusted", transformation_ctx="cust_trusted_node1737220719410")
+# Script generated for node customer trusted
+customertrusted_node1234567890123 = glueContext.create_dynamic_frame.from_options(
+    format_options={"multiline": False},
+    connection_type="s3",
+    format="json",
+    connection_options={
+        "paths": ["s3://my-stedi-bucket-123456/customer/trusted/"],
+        "recurse": True,
+    },
+    transformation_ctx="customertrusted_node1234567890123",
+)
 
-# Script generated for node acc_trusted
-acc_trusted_node1737220736455 = glueContext.create_dynamic_frame.from_catalog(database="stedi", table_name="accelerometer_trusted", transformation_ctx="acc_trusted_node1737220736455")
+# Script generated for node Join
+Join_node2837465928471 = Join.apply(
+    frame1=accelerometertrusted_node983247982374,
+    frame2=customertrusted_node1234567890123,
+    keys1=["user"],
+    keys2=["email"],
+    transformation_ctx="Join_node2837465928471",
+)
 
-# Script generated for node join_email
-SqlQuery0 = '''
-select cust.*, acc.serialnumber_acc from cust
-INNER JOIN acc
-ON cust.email = acc.user;
-'''
-join_email_node1737225827703 = sparkSqlQuery(glueContext, query = SqlQuery0, mapping = {"cust":cust_trusted_node1737220719410, "acc":acc_trusted_node1737220736455}, transformation_ctx = "join_email_node1737225827703")
+# Script generated for node Drop Fields
+DropFields_node3746598273405 = DropFields.apply(
+    frame=Join_node2837465928471,
+    paths=["x", "y", "user", "timeStamp", "z"],
+    transformation_ctx="DropFields_node3746598273405",
+)
 
-# Script generated for node Amazon S3
-EvaluateDataQuality().process_rows(frame=join_email_node1737225827703, ruleset=DEFAULT_DATA_QUALITY_RULESET, publishing_options={"dataQualityEvaluationContext": "EvaluateDataQuality_node1737216380059", "enableDataQualityResultsPublishing": True}, additional_options={"dataQualityResultsPublishing.strategy": "BEST_EFFORT", "observations.scope": "ALL"})
-AmazonS3_node1737220830657 = glueContext.getSink(path="s3://my-stedi-bucket-123456/customer/curated/", connection_type="s3", updateBehavior="UPDATE_IN_DATABASE", partitionKeys=[], compression="", enableUpdateCatalog=True, transformation_ctx="AmazonS3_node1737220830657")
-AmazonS3_node1737220830657.setCatalogInfo(catalogDatabase="stedi",catalogTableName="customer_curated")
-AmazonS3_node1737220830657.setFormat("json")
-AmazonS3_node1737220830657.writeFrame(join_email_node1737225827703)
+# Script generated for node Drop Duplicates
+DropDuplicates_node6598273485730 = DynamicFrame.fromDF(
+    DropFields_node3746598273405.toDF().dropDuplicates(["email"]),
+    glueContext,
+    "DropDuplicates_node6598273485730",
+)
+
+# Script generated for node customer curated
+customercurated_node9823746592387 = glueContext.getSink(
+    path="s3://my-stedi-bucket-123456/customer/curated/",
+    connection_type="s3",
+    updateBehavior="UPDATE_IN_DATABASE",
+    partitionKeys=[],
+    enableUpdateCatalog=True,
+    transformation_ctx="customercurated_node9823746592387",
+)
+customercurated_node9823746592387.setCatalogInfo(
+    catalogDatabase="stedi", catalogTableName="customer_curated"
+)
+customercurated_node9823746592387.setFormat("json")
+customercurated_node9823746592387.writeFrame(DropDuplicates_node6598273485730)
 job.commit()
