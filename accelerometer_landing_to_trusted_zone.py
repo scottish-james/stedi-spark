@@ -22,14 +22,11 @@ DEFAULT_DATA_QUALITY_RULESET = """
     ]
 """
 
-# Script generated for node cust_trusted
-cust_trusted_node1737203424853 = glueContext.create_dynamic_frame.from_catalog(database="stedi", table_name="customer_trusted", transformation_ctx="cust_trusted_node1737203424853")
-
 # Script generated for node acc_landing
 acc_landing_node1737203442098 = glueContext.create_dynamic_frame.from_catalog(database="stedi", table_name="accelerometer_landing", transformation_ctx="acc_landing_node1737203442098")
 
-# Script generated for node Amazon S3
-AmazonS3_node1737204400993 = glueContext.create_dynamic_frame.from_catalog(database="stedi", table_name="customer_trusted", transformation_ctx="AmazonS3_node1737204400993")
+# Script generated for node cust_trusted
+cust_trusted_node1737203424853 = glueContext.create_dynamic_frame.from_catalog(database="stedi", table_name="customer_trusted", transformation_ctx="cust_trusted_node1737203424853")
 
 # Script generated for node Join
 Join_node1737203468890 = Join.apply(frame1=acc_landing_node1737203442098, frame2=cust_trusted_node1737203424853, keys1=["user"], keys2=["email"], transformation_ctx="Join_node1737203468890")
@@ -37,10 +34,13 @@ Join_node1737203468890 = Join.apply(frame1=acc_landing_node1737203442098, frame2
 # Script generated for node Drop Duplicates
 DropDuplicates_node1737203640743 =  DynamicFrame.fromDF(Join_node1737203468890.toDF().dropDuplicates(), glueContext, "DropDuplicates_node1737203640743")
 
+# Script generated for node Drop Fields
+DropFields_node1737208451709 = DropFields.apply(frame=DropDuplicates_node1737203640743, paths=["customername", "email", "phone", "birthday", "serialnumber", "registrationdate", "lastupdatedate", "sharewithresearchasofdate", "sharewithpublicasofdate", "sharewithfriendsasofdate"], transformation_ctx="DropFields_node1737208451709")
+
 # Script generated for node Amazon S3
-EvaluateDataQuality().process_rows(frame=DropDuplicates_node1737203640743, ruleset=DEFAULT_DATA_QUALITY_RULESET, publishing_options={"dataQualityEvaluationContext": "EvaluateDataQuality_node1737203399676", "enableDataQualityResultsPublishing": True}, additional_options={"dataQualityResultsPublishing.strategy": "BEST_EFFORT", "observations.scope": "ALL"})
+EvaluateDataQuality().process_rows(frame=DropFields_node1737208451709, ruleset=DEFAULT_DATA_QUALITY_RULESET, publishing_options={"dataQualityEvaluationContext": "EvaluateDataQuality_node1737203399676", "enableDataQualityResultsPublishing": True}, additional_options={"dataQualityResultsPublishing.strategy": "BEST_EFFORT", "observations.scope": "ALL"})
 AmazonS3_node1737203648668 = glueContext.getSink(path="s3://my-stedi-bucket-123456/accelerometer/trusted/", connection_type="s3", updateBehavior="UPDATE_IN_DATABASE", partitionKeys=[], enableUpdateCatalog=True, transformation_ctx="AmazonS3_node1737203648668")
 AmazonS3_node1737203648668.setCatalogInfo(catalogDatabase="stedi",catalogTableName="accelerometer_trusted")
 AmazonS3_node1737203648668.setFormat("json")
-AmazonS3_node1737203648668.writeFrame(DropDuplicates_node1737203640743)
+AmazonS3_node1737203648668.writeFrame(DropFields_node1737208451709)
 job.commit()
