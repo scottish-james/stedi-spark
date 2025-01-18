@@ -1,9 +1,10 @@
 CREATE EXTERNAL TABLE IF NOT EXISTS `stedi`.`accelerometer_trusted` (
   `user` string,
   `timestamp` bigint,
-  `x` float,
-  `y` float,
-  `z` float
+  `x` double,
+  `y` double,
+  `z` double,
+  `serialNumber_acc` string
 )
 ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'
 WITH SERDEPROPERTIES (
